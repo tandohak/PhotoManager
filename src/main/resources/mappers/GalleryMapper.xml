@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dgit.mapper.GalleryMapper">	
+	<insert id="insert">
+		insert into gallery (userId, gPath, uploadDate)
+		values (#{userId},#{gPath},now())
+	</insert>
+	
+	<select id="listAll" resultType="GalleryVO">
+		select * from gallery
+	</select>
+	<delete id="delete">
+		delete from gallery where gno = #{gno}
+	</delete>
+	
+</mapper>
