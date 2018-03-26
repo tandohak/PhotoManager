@@ -23,6 +23,7 @@
 			<ul class="nav navbar-nav">
 				<li class="active"><a href="#">Home</a></li>
 				<c:if test="${login!= null }">
+				<li><a><span id="userid">${login.userId}</span> 님</a></li>	
 				<li><a href="logout">로그아웃</a></li>	
 				</c:if>	
 				<c:if test="${login== null }">

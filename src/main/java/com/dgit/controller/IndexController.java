@@ -1,5 +1,10 @@
 package com.dgit.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -8,15 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dgit.domain.GalleryVO;
 import com.dgit.domain.MemberVO;
+import com.dgit.service.GalleryService;
 import com.dgit.service.MemeberService;
-import com.mysql.fabric.xmlrpc.base.Member;
 
 @Controller
 public class IndexController {
@@ -26,6 +31,10 @@ public class IndexController {
 	@Autowired
 	MemeberService memSerivce;
 	
+	@Autowired
+	private GalleryService galService;
+	
+	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String index(Model model,HttpSession session) {
 		logger.info("[index] 메인 접속 ----------------------");
@@ -33,8 +42,25 @@ public class IndexController {
 		MemberVO loginVo = (MemberVO) session.getAttribute("login");
 		if(loginVo!=null){
 			logger.info("로그인 아이디 : " + loginVo.getUserId());
-		}  
+			List<GalleryVO> list = galService.listWithUserId(loginVo.getUserId());
+			List<Map<String,Object>> imgList = new ArrayList<Map<String,Object>>();
+			
+			for(GalleryVO vo: list){
+				Map<String,Object> item = new HashMap();
+				
+				String path = vo.getGpath();
+				
+				path = path.substring(51,path.length());
+				item.put("filename", path);
+				item.put("vo", vo);
+				
+				imgList.add(item);
+			} 
+			
 
+			model.addAttribute("imgList",imgList);
+		}  
+		
 		return "index";
 	}  
 	

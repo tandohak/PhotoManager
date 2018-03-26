@@ -3,14 +3,23 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dgit.mapper.GalleryMapper">	
-	<insert id="insert">
-		insert into gallery (userId, gPath, uploadDate)
-		values (#{userId},#{gPath},now())
+	<insert id="insert" useGeneratedKeys="true" keyProperty="gno">
+		insert into gallery (userId, gpath, uploadDate)
+		values (#{userId},#{gpath},now())
 	</insert>
 	
 	<select id="listAll" resultType="GalleryVO">
 		select * from gallery
 	</select>
+	
+	<select id="selectOneByGno" resultType="GalleryVO">
+		select * from gallery where gno = #{gno}
+	</select>
+	
+	<select id="listWithUserId" resultType="GalleryVO">
+		select * from gallery where userId = #{userId}
+	</select>
+	
 	<delete id="delete">
 		delete from gallery where gno = #{gno}
 	</delete>

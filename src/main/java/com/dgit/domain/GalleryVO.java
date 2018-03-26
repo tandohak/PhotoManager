@@ -5,7 +5,7 @@ import java.util.Date;
 public class GalleryVO {
 	private int gno;
 	private String userId;
-	private String gPath;
+	private String gpath;
 	private Date uploadDate;
 	
 	public int getGno() {
@@ -20,11 +20,11 @@ public class GalleryVO {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-	public String getgPath() {
-		return gPath;
+	public String getGpath() {   
+		return gpath;
 	}
-	public void setgPath(String gPath) {
-		this.gPath = gPath;
+	public void setGpath(String gpath) {
+		this.gpath = gpath;
 	}
 	public Date getUploadDate() {
 		return uploadDate;

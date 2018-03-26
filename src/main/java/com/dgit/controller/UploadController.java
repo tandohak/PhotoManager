@@ -5,27 +5,28 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dgit.domain.GalleryVO;
+import com.dgit.service.GalleryService;
 import com.dgit.util.MediaUtils;
 import com.dgit.util.UploadFileUtils;
 
@@ -38,6 +39,8 @@ public class UploadController {
 	@Resource(name = "uploadPath")
 	private String outUploadPath;
 
+	@Autowired
+	private GalleryService service;
 	
 	@RequestMapping(value = "/uploadDrag", method = RequestMethod.GET)
 	public String uploadDragForm() {
@@ -47,12 +50,12 @@ public class UploadController {
 
 	@ResponseBody
 	@RequestMapping(value = "/uploadDrag", method = RequestMethod.POST)
-	public ResponseEntity<List<String>> uploadDragResult(String test, List<MultipartFile> files) {
+	public ResponseEntity<List<HashMap<String, Object>>> uploadDragResult(String test, List<MultipartFile> files,String id) {
 		logger.info("[uploadDrag] Result POST");
 		logger.info(test);
 
-		ResponseEntity<List<String>> entity = null;
-		List<String> list = new ArrayList();
+		ResponseEntity<List<HashMap<String, Object>>> entity = null;
+		List<HashMap<String, Object>> list = new ArrayList();
 		try {
 			for (MultipartFile file : files) {
 				File dirPath = new File(outUploadPath);
@@ -66,15 +69,25 @@ public class UploadController {
 				 * target = new File(outUploadPath, saveName);
 				 * FileCopyUtils.copy(file.getBytes(), target);
 				 */
-
+				
 				String savedName = UploadFileUtils.uploadFile(outUploadPath, file.getOriginalFilename(),
 						file.getBytes());
-
-				list.add(savedName);
+				HashMap<String, Object> map = new HashMap<String, Object>();
+				
+				GalleryVO vo = new GalleryVO();
+				vo.setUserId(id);
+				
+				vo.setGpath(savedName);
+				service.insertImg(vo);
+				GalleryVO invo = service.selectOneByGno(vo.getGno());
+				
+				map.put("savedName",file.getOriginalFilename());
+				map.put("vo", invo);
+				list.add(map);
 			}
-			entity = new ResponseEntity<List<String>>(list, HttpStatus.OK);
+			entity = new ResponseEntity<List<HashMap<String, Object>>>(list, HttpStatus.OK);
 		} catch (IOException e) {
-			entity = new ResponseEntity<List<String>>(list, HttpStatus.BAD_REQUEST);
+			entity = new ResponseEntity<List<HashMap<String, Object>>>(list, HttpStatus.BAD_REQUEST);
 			e.printStackTrace();
 		}
 
@@ -84,7 +97,7 @@ public class UploadController {
 	// deleteFile
 	@ResponseBody
 	@RequestMapping(value = "deleteFile", method = RequestMethod.GET)
-	public ResponseEntity<String> deleteFile(String filename) {
+	public ResponseEntity<String> deleteFile(String filename, int gno) {
 		ResponseEntity<String> entity = null;
 		try {
 			System.gc();
@@ -93,7 +106,9 @@ public class UploadController {
 			file2.delete();
 			file.delete();
 			logger.info("[deleteFile] - original : " + filename.replaceFirst("s_", ""));
-
+			
+			service.deleteImg(gno);
+			
 			entity = new ResponseEntity<String>("success", HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -163,8 +178,30 @@ public class UploadController {
 		System.out.println(savedNames.toString());
 		model.addAttribute("writer", writer); 
 		model.addAttribute("paths", savedNames);
-		 
+		
 		return "uploadMultiplePreviewResult";
 	}
+	
+	@RequestMapping(value = "displayFile", method = RequestMethod.GET)
+	public @ResponseBody ResponseEntity<byte[]> displayFile(String filename) {
+		ResponseEntity<byte[]> entity = null;
+		InputStream in = null;
+		logger.info("[displayFile]:" + filename);
 
+		try {
+			String formatName = filename.substring(filename.lastIndexOf(".") + 1);
+			MediaType type = MediaUtils.getMediaType(formatName);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(type);
+
+			in = new FileInputStream(outUploadPath + "/" + filename);
+
+			entity = new ResponseEntity<byte[]>(IOUtils.toByteArray(in), headers, HttpStatus.CREATED);
+		} catch (Exception e) {
+			e.printStackTrace();
+			entity = new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
+		}
+
+		return entity;
+	}
 }
