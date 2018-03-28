@@ -190,7 +190,7 @@
 										var inputObj = $("<input>").val("X")
 												.addClass("del").attr("type",
 														"button").attr(
-														"data-del", obj);  
+														"data-del", obj.vo.gpath);  
 
 										divObj.append(inputObj);
 
@@ -203,7 +203,7 @@
 				})
 			})
 
-	$(".item img").click(
+	$("#imgBox").on("click",".item img",
 			function() {
 				$("#detailShow").toggle();
 				var parent = $(this).parent(".item");
@@ -213,7 +213,7 @@
 				var imgObj = $("<img>").attr("src",
 						"displayFile?filename=" + fileName);
 
-				$("#detailShow").html(imgObj);
+				$("#detailShow").html(imgObj);  
 			})
 
 	$("#detailShow").click(function() {
