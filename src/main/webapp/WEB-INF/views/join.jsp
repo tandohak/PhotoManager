@@ -13,7 +13,7 @@
 						<input type="text" class="form-control" id="userId" name="userId" placeholder="아이디">
 						<span id="check"></span>
 					</div>  
-				</div>
+				</div> 
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-9">
 						<a href="#" class="btn btn-success" id="idCheck">아이디 중복체크</a>  
