@@ -86,11 +86,11 @@
 						alert("비밀번호는 8~20자 영어,숫자, 특수문자만 가능합니다.");
 						$("#password").focus();
 						return false;		 
-					}  
+					}
 					
 					var pw = $("#password").val();
 					var pwck = $("#passwordCheck").val();
-					if(!pw == pwck){
+					if(!(pw == pwck)){
 						alert("비밀번호가 다릅니다.");
 						$("#password").focus();
 						return false;		 
